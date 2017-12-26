@@ -6,6 +6,7 @@ import org.scalatest.Matchers
 import support.BlankValues._
 import support.KoanSuite
 import org.scalatest.SeveredStackTraces
+import flight03.ComplexNum
 
 // Note, in the following exercise, to get the tests to even compile we had to
 // comment out the test code. You will need to uncomment it first, then write
@@ -30,7 +31,7 @@ class Flight03 extends KoanSuite with Matchers with SeveredStackTraces {
   // are far from exhaustive
 
   // UNCOMMENT BELOW
-  /* test ("Create a new Complex number and check the values for the real/imaginary parts") {
+  test ("Create a new Complex number and check the values for the real/imaginary parts") {
     val complex = new ComplexNum(4, 2)
 
     complex.real should be (4)
@@ -73,7 +74,7 @@ class Flight03 extends KoanSuite with Matchers with SeveredStackTraces {
 
     complex.real should be (12)
     complex.imaginary should be (3.2)
-  } */
+  }
 
   // Extra credit - numbers with a negative imaginary part should be output
   // as 6.0 - 5.0i instead of 6.0 + -5.0i - if you have time, write a new test
