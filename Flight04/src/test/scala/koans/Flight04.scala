@@ -6,7 +6,7 @@ import org.scalatest.Matchers
 import org.scalatest.SeveredStackTraces
 import support.BlankValues._
 import support.KoanSuite
-import java.io.{BufferedReader, FileReader}
+import java.io.{BufferedReader, FileNotFoundException, FileReader, IOException}
 
 class Flight04 extends KoanSuite with Matchers with SeveredStackTraces {
 
@@ -17,13 +17,13 @@ class Flight04 extends KoanSuite with Matchers with SeveredStackTraces {
     //
     // Hint: maybe recursion? List.head will give you the first value, List.tail will give you the rest
 
-    def max(numbers : List[Int]) = {
-      var maxSoFar = Int.MinValue
-
-      for (n <- numbers) {
-        if (n > maxSoFar) maxSoFar = n
+    def max(numbers : List[Int]): Int = {
+      if (numbers.isEmpty) Int.MinValue
+      else {
+        val maxOfRest = max(numbers.tail)
+        if (numbers.head > maxOfRest) numbers.head else maxOfRest
       }
-      maxSoFar
+
     }
 
     max(List(1, 2, 3, 4, 5)) should be (5)
@@ -40,7 +40,11 @@ class Flight04 extends KoanSuite with Matchers with SeveredStackTraces {
     val fileList = (new java.io.File(dirPath)).listFiles
 
     // you need to replace this line with the real implementation
-    new Array[String](0)
+    {for {
+      file <- fileList
+      if file.getName.endsWith(".shkspr" )
+    } yield file.getName}.sorted
+
   }
   // question: can you guess why we define this method outside of the test below?
 
@@ -57,7 +61,12 @@ class Flight04 extends KoanSuite with Matchers with SeveredStackTraces {
   // what you need
   def firstLineOfFile(filePath: String) : String = {
     // replace with the real implementation
-    ""
+    try {
+      val reader = new BufferedReader(new FileReader(filePath))
+      reader.readLine()
+    } finally {
+      ""
+    }
   }
 
   test ("First line of file") {
@@ -73,8 +82,15 @@ class Flight04 extends KoanSuite with Matchers with SeveredStackTraces {
   // finish this method so that the string is first trimmed (get rid of leading and trailing space)
   // and then the last character is matched to either a '?' ("Question") or anything else ("Statement")
   // so that the test below passes
-  def statementOrQuestion(str : String) : String = 
-    str
+  def statementOrQuestion(str : String) : String = {
+    val trimmed = str.trim()
+    val ltrimmed = trimmed.last
+    ltrimmed match {
+      case '?' => "Question"
+      case _ => "Statement"
+    }
+  }
+
 
   test ("statement or question?") {
     statementOrQuestion("hello") should be ("Statement")
@@ -98,7 +114,11 @@ class Flight04 extends KoanSuite with Matchers with SeveredStackTraces {
     // extra extra credit - can you find a way to do it without using either a var or a mutable Map?
     //var shksprMap = new scala.collection.immutable.HashMap[String, String]
 
-    val shksprMap = new scala.collection.immutable.HashMap[String, String]
+    val shksprMap = new scala.collection.mutable.HashMap[String, String]
+    val shksprFiles = listShakespeareFiles(".")
+    for {
+      shksprFile  <- shksprFiles
+    } shksprMap.put(shksprFile  , statementOrQuestion(firstLineOfFile(shksprFile)))
 
     shksprMap("caesar.shkspr") should be ("Statement")
     shksprMap("romeo.shkspr") should be ("Question")
