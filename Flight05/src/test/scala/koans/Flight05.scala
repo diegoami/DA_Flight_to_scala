@@ -18,14 +18,18 @@ class Flight05 extends KoanSuite with Matchers with SeveredStackTraces {
     // Remember that local functions can access variables from the method space without the
     // need to pass them in. The function should multiply the argument passed in by the multiplier var
 
+    def mult(i: Int) = {
+      i * multiplier
+    }
+
     // UNCOMMENT TESTS
-    /* mult(5) should be (15)
+    mult(5) should be (15)
     mult(3) should be (9)
 
     // why do the results of mult change here?
     multiplier = 5
     mult(5) should be (25)
-    mult(3) should be (15) */
+    mult(3) should be (15)
   }
 
   test ("Filter numbers") {
@@ -35,8 +39,8 @@ class Flight05 extends KoanSuite with Matchers with SeveredStackTraces {
     // to make the tests pass.
     // Just like in Java, % is the modulo operator
 
-    val onlyOdd = allNumbers.filter(x => true)
-    val onlyEven = allNumbers.filter(x => true)
+    val onlyOdd = allNumbers.filter(x  => x % 2 == 1)
+    val onlyEven = allNumbers.filter(x => x % 2 == 0)
 
     onlyOdd should be (List(1,3,5,7))
     onlyEven should be (List(0,2,4,6))
@@ -45,9 +49,10 @@ class Flight05 extends KoanSuite with Matchers with SeveredStackTraces {
   test ("Function with placeholder syntax") {
     // using placeholder syntax, define a val "mult" that multiplies 2 Ints together, then uncomment
     // the tests below and make sure they pass
+    val mult = (_: Int) * (_: Int)
 
-    /* mult(2, 4) should be (8)
-    mult(10, 10) should be (100) */
+    mult(2, 4) should be (8)
+    mult(10, 10) should be (100)
   }
 
   test ("Bounds limiter partial function") {
@@ -70,19 +75,23 @@ class Flight05 extends KoanSuite with Matchers with SeveredStackTraces {
     // and upper bounds of 100, but with the middle value (to test) not yet bound (use a placeholder)
     // Then uncomment the tests below and make sure they pass
 
-
-    /* waterAsLiquid(34) should be (34)
+    val waterAsLiquid = boundToLimits(0, _: Int, 100)
+    waterAsLiquid(34) should be (34)
     waterAsLiquid(-10) should be (0)
-    waterAsLiquid(400) should be (100) */
+    waterAsLiquid(400) should be (100)
   }
 
   test ("Multiply variable number of arguments") {
     // create a multipleDoubles method to satisfy the tests below, uncomment the tests and run them
     // to ensure it works
 
-    /* multiplyDoubles(1.0, 2.0, 3.0) should be (6.0 +- 0.00001)
+    def multiplyDoubles(args: Double*) : Double = {
+      if (args.length == 0) 1
+      else args.head * multiplyDoubles(args.tail:_*)
+    }
+    multiplyDoubles(1.0, 2.0, 3.0) should be (6.0 +- 0.00001)
     multiplyDoubles(1.1, 2.2, 3.3, 4.4, 5.5, 6.6) should be (1275.52392 +- 0.00001)
-    multiplyDoubles() should be (1.0) */
+    multiplyDoubles() should be (1.0)
 
     // extra credit, can you re-write the multiplyDoubles method to work without needing to use any vars?
   }
@@ -94,21 +103,30 @@ class Flight05 extends KoanSuite with Matchers with SeveredStackTraces {
     // listOfLists("3","2","1") should give back: List(List("3","2","1"), List("2","1"), List("1"))
     // If you have trouble with the recursive call, check the argument expansion slide for help
     // Uncomment the tests below to make sure the method works.
-    
+    def listOfLists(list: String*) : List[List[String]] = {
 
-    /* listOfLists("Hello", "World") should be (List(List("Hello", "World"), List("World")))
-    listOfLists("Hello", "There", "World") should be (List(List("Hello", "There", "World"), List("There", "World"), List("World"))) */
+
+      if (list.length <= 1) List(List(list(0)))
+      else List(list.toList) ::: listOfLists(list.tail:_*)
+    }
+
+
+    listOfLists("Hello", "World") should be (List(List("Hello", "World"), List("World")))
+    listOfLists("Hello", "There", "World") should be (List(List("Hello", "There", "World"), List("There", "World"), List("World")))
+
+
   
     // is this implementation of listOfLists properly recursive? If not, why not?
   }
 
   test ("URL cleaner") {
     def urlClean(urlAsString : String) : URL = {
-      new URL(urlAsString)
+      if (urlAsString.startsWith("http")) {
+        new URL(urlAsString)
+      } else {
+        new URL("http://badurl.com")
+      }
     }
-
-    // fix the method above to catch a malformed URL and replace it with a URL made out of
-    // "http://badurl.com" so that the tests below pass
 
     urlClean("http://artima.com") should be (new URL("http://artima.com"))
     urlClean("http://javaposse.com") should be (new URL("http://javaposse.com"))
@@ -125,7 +143,15 @@ class Flight05 extends KoanSuite with Matchers with SeveredStackTraces {
     // Use pattern matching
 
     def oppositeOf(item: String) =
-      item
+      item match  {
+        case "North" => "South"
+        case "Hot" => "Cold"
+        case "Cool" => "Square"
+        case _ => "Not "+item
+
+      }
+
+
 
     oppositeOf("North") should be ("South")
     oppositeOf("Hot") should be ("Cold")
